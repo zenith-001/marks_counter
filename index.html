@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Keyboard Counter App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #232323;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding-top: 50px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .full-marks-box {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .full-marks-box input {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            background-color: #2e2e2e;
+            color: #fff;
+            width: 150px;
+            text-align: center;
+        }
+
+        .counter-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .counter-box {
+            background-color: #2e2e2e;
+            padding: 25px 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.2s ease-in-out;
+            min-width: 200px;
+        }
+
+        .counter-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #bbb;
+        }
+
+        .counter-value {
+            font-size: 2.5rem;
+            color: #fff;
+            transition: transform 0.2s ease;
+        }
+
+        .bump {
+            transform: scale(1.2);
+        }
+
+        .info {
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 0.9rem;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .counter-box {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Marks Counter App</h1>
+
+    <div class="full-marks-box">
+        <label for="fullMarks">Full Marks:</label><br>
+        <input type="number" id="fullMarks" placeholder="Enter full marks">
+    </div>
+
+    <div class="counter-container">
+        <div class="counter-box">
+            <div class="counter-title">Questions Attempted</div>
+            <div class="counter-value" id="spaceCount">0</div>
+        </div>
+        <div class="counter-box">
+            <div class="counter-title">Correctly Answered</div>
+            <div class="counter-value" id="enterCount">0</div>
+        </div>
+        <div class="counter-box">
+            <div class="counter-title">Wrongly Answered</div>
+            <div class="counter-value" id="remainingCount">0</div>
+        </div>
+    </div>
+
+    <div class="info">
+        <strong>SPACE</strong>: Increments both attempted & correct<br>
+        <strong>CTRL + SPACE</strong>: Decrements both<br>
+        <strong>ENTER</strong>: Increments correct only<br>
+        <strong>CTRL + ENTER</strong>: Decrements correct only<br><br>
+        Remaining = Full Marks − Correct
+    </div>
+
+    <script>
+        const spaceCountElem = document.getElementById('spaceCount');
+        const enterCountElem = document.getElementById('enterCount');
+        const remainingCountElem = document.getElementById('remainingCount');
+        const fullMarksInput = document.getElementById('fullMarks');
+
+        // Load from localStorage or defaults
+        let spaceCounter = parseInt(localStorage.getItem('spaceCounter')) || 0;
+        let enterCounter = parseInt(localStorage.getItem('enterCounter')) || 0;
+        let fullMarks = parseInt(localStorage.getItem('fullMarks')) || 0;
+
+        const updateUI = () => {
+            spaceCountElem.textContent = spaceCounter;
+            enterCountElem.textContent = enterCounter;
+            const remaining = Math.max(fullMarks - enterCounter, 0);
+            remainingCountElem.textContent = remaining;
+        };
+
+        const bumpAnimation = (el) => {
+            el.classList.add("bump");
+            setTimeout(() => el.classList.remove("bump"), 200);
+        };
+
+        // Set initial values
+        fullMarksInput.value = fullMarks;
+        updateUI();
+
+        fullMarksInput.addEventListener('input', () => {
+            fullMarks = parseInt(fullMarksInput.value) || 0;
+            localStorage.setItem('fullMarks', fullMarks);
+            updateUI();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (e.ctrlKey) {
+                    spaceCounter--;
+                    enterCounter--;
+                } else {
+                    spaceCounter++;
+                    enterCounter++;
+                }
+                localStorage.setItem('spaceCounter', spaceCounter);
+                localStorage.setItem('enterCounter', enterCounter);
+                updateUI();
+                bumpAnimation(spaceCountElem);
+                bumpAnimation(enterCountElem);
+                bumpAnimation(remainingCountElem);
+            }
+
+            if (e.code === 'Enter') {
+                if (e.ctrlKey) {
+                    enterCounter--;
+                } else {
+                    enterCounter++;
+                }
+                localStorage.setItem('enterCounter', enterCounter);
+                updateUI();
+                bumpAnimation(enterCountElem);
+                bumpAnimation(remainingCountElem);
+            }
+        });
+    </script>
+
+</body>
+</html>
