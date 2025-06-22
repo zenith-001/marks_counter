@@ -95,7 +95,7 @@
 </head>
 <body>
 
-    <h1>Marks Counter App</h1>
+    <h1>Keyboard Counter App</h1>
 
     <div class="full-marks-box">
         <label for="fullMarks">Full Marks:</label><br>
@@ -104,43 +104,42 @@
 
     <div class="counter-container">
         <div class="counter-box">
-            <div class="counter-title">Questions Attempted</div>
-            <div class="counter-value" id="spaceCount">0</div>
+            <div class="counter-title">Correctly Answered (Space)</div>
+            <div class="counter-value" id="correctCount">0</div>
         </div>
         <div class="counter-box">
-            <div class="counter-title">Correctly Answered</div>
-            <div class="counter-value" id="enterCount">0</div>
+            <div class="counter-title">Wrongly Answered (Enter)</div>
+            <div class="counter-value" id="wrongCount">0</div>
         </div>
         <div class="counter-box">
-            <div class="counter-title">Wrongly Answered</div>
-            <div class="counter-value" id="remainingCount">0</div>
+            <div class="counter-title">Total Answered</div>
+            <div class="counter-value" id="totalCount">0</div>
         </div>
     </div>
 
     <div class="info">
-        <strong>SPACE</strong>: Increments both attempted & correct<br>
-        <strong>CTRL + SPACE</strong>: Decrements both<br>
-        <strong>ENTER</strong>: Increments correct only<br>
-        <strong>CTRL + ENTER</strong>: Decrements correct only<br><br>
-        Remaining = Full Marks − Correct
+        <strong>SPACE</strong>: Increment Correct Counter<br>
+        <strong>ENTER</strong>: Increment Wrong Counter<br>
+        <strong>CTRL + (Space or Enter)</strong>: Decrement the respective counter<br><br>
+        Total Answered = Correct + Wrong
     </div>
 
     <script>
-        const spaceCountElem = document.getElementById('spaceCount');
-        const enterCountElem = document.getElementById('enterCount');
-        const remainingCountElem = document.getElementById('remainingCount');
+        const correctElem = document.getElementById('correctCount');
+        const wrongElem = document.getElementById('wrongCount');
+        const totalElem = document.getElementById('totalCount');
         const fullMarksInput = document.getElementById('fullMarks');
 
         // Load from localStorage or defaults
-        let spaceCounter = parseInt(localStorage.getItem('spaceCounter')) || 0;
-        let enterCounter = parseInt(localStorage.getItem('enterCounter')) || 0;
+        let correctCounter = parseInt(localStorage.getItem('correctCounter')) || 0;
+        let wrongCounter = parseInt(localStorage.getItem('wrongCounter')) || 0;
         let fullMarks = parseInt(localStorage.getItem('fullMarks')) || 0;
 
         const updateUI = () => {
-            spaceCountElem.textContent = spaceCounter;
-            enterCountElem.textContent = enterCounter;
-            const remaining = Math.max(fullMarks - enterCounter, 0);
-            remainingCountElem.textContent = remaining;
+            correctElem.textContent = correctCounter;
+            wrongElem.textContent = wrongCounter;
+            const total = correctCounter + wrongCounter;
+            totalElem.textContent = total;
         };
 
         const bumpAnimation = (el) => {
@@ -148,44 +147,38 @@
             setTimeout(() => el.classList.remove("bump"), 200);
         };
 
-        // Set initial values
         fullMarksInput.value = fullMarks;
-        updateUI();
-
         fullMarksInput.addEventListener('input', () => {
             fullMarks = parseInt(fullMarksInput.value) || 0;
             localStorage.setItem('fullMarks', fullMarks);
-            updateUI();
         });
+
+        updateUI();
 
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
                 if (e.ctrlKey) {
-                    spaceCounter--;
-                    enterCounter--;
+                    correctCounter--;
                 } else {
-                    spaceCounter++;
-                    enterCounter++;
+                    correctCounter++;
                 }
-                localStorage.setItem('spaceCounter', spaceCounter);
-                localStorage.setItem('enterCounter', enterCounter);
+                localStorage.setItem('correctCounter', correctCounter);
                 updateUI();
-                bumpAnimation(spaceCountElem);
-                bumpAnimation(enterCountElem);
-                bumpAnimation(remainingCountElem);
+                bumpAnimation(correctElem);
+                bumpAnimation(totalElem);
             }
 
             if (e.code === 'Enter') {
                 if (e.ctrlKey) {
-                    enterCounter--;
+                    wrongCounter--;
                 } else {
-                    enterCounter++;
+                    wrongCounter++;
                 }
-                localStorage.setItem('enterCounter', enterCounter);
+                localStorage.setItem('wrongCounter', wrongCounter);
                 updateUI();
-                bumpAnimation(enterCountElem);
-                bumpAnimation(remainingCountElem);
+                bumpAnimation(wrongElem);
+                bumpAnimation(totalElem);
             }
         });
     </script>
